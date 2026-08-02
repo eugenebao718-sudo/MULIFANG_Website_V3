@@ -92,8 +92,8 @@ const custom = (number: number, slug: string, name: string, category: string, de
 };
 
 export const customProducts: Product[] = [
-  custom(1, "custom-kitchen-cabinets", "Custom Kitchen Cabinets", "Kitchens", "Tailored kitchen cabinetry planned around the room, storage needs and daily workflow.", ["Private homes", "Condominiums", "Apartments"]),
-  custom(2, "contemporary-red-kitchen", "Contemporary Red Kitchen", "Kitchens", "A confident contemporary kitchen composition with high-impact color and integrated storage.", ["Residential kitchens", "Show units", "Hospitality spaces"]),
+  custom(1, "custom-kitchen-cabinets", "Luxury Villa Project - 1", "Residential", "Fully customized furniture package for a luxury villa interior.", ["Luxury villas", "Private residences", "Whole-home interiors"]),
+  custom(2, "contemporary-red-kitchen", "Luxury Villa Project - 2", "Residential", "Fully customized furniture package for a luxury villa interior.", ["Luxury villas", "Private residences", "Whole-home interiors"]),
   custom(3, "contemporary-yellow-kitchen", "Contemporary Yellow Kitchen", "Kitchens", "A distinctive kitchen and bar system with warm yellow finishes and efficient compact storage.", ["Apartments", "Entertainment rooms", "Restaurants"]),
   custom(4, "kitchen-island-system", "Kitchen Island System", "Kitchens", "Custom islands for preparation, dining, storage and integrated appliance planning.", ["Open-plan homes", "Condominiums", "Serviced apartments"]),
   custom(5, "wardrobes-tall-storage", "Wardrobes and Tall Storage", "Storage", "Full-height storage systems designed to make efficient use of wall and ceiling height.", ["Bedrooms", "Hallways", "Apartments"]),

@@ -24,6 +24,22 @@ test("server-renders every key route in all three languages", async () => {
   }
 });
 
+test("English product content stays English and preserves the approved custom sequence", async () => {
+  const response = await render("/en/products");
+  const html = await response.text();
+  const main = html.match(/<main[^>]*>([\s\S]*?)<\/main>/)?.[1] ?? "";
+  assert.doesNotMatch(main, /[\u3400-\u9fff]/);
+  assert.match(main, /Custom Solutions/i);
+  assert.match(main, /View Details/);
+  assert.match(main, /Request a Quote/);
+  const approved = ["MF-CUS-001", "MF-CUS-002", "MF-CUS-017", "MF-CUS-018", "MF-CUS-019"];
+  const positions = approved.map((code) => main.indexOf(code));
+  assert.ok(positions.every((position) => position >= 0), "approved custom product codes are present");
+  assert.deepEqual([...positions].sort((a, b) => a - b), positions, "approved custom products retain their sequence");
+  assert.match(main, /Luxury Villa Project - 1/);
+  assert.match(main, /Luxury Villa Project - 2/);
+});
+
 test("legacy routes safely redirect to English", async () => {
   for (const path of ["/", "/products", "/factory", "/products/nest-1800-tv-console"]) {
     const response = await render(path);

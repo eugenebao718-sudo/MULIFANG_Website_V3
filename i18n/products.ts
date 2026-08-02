@@ -10,11 +10,19 @@ const koNames: Record<string, string> = {
   "MF-CUS-001":"맞춤 주방 캐비닛", "MF-CUS-002":"컨템포러리 레드 키친", "MF-CUS-003":"컨템포러리 옐로 키친", "MF-CUS-004":"키친 아일랜드 시스템", "MF-CUS-005":"옷장 및 대형 수납", "MF-CUS-006":"워크인 클로젯", "MF-CUS-007":"TV 월 시스템", "MF-CUS-008":"디스플레이 및 포인트 캐비닛", "MF-CUS-009":"현관 및 복도 캐비닛", "MF-CUS-010":"플로팅 캐비닛", "MF-CUS-011":"장식용 포인트 선반", "MF-CUS-012":"콤팩트 바 카운터", "MF-CUS-013":"다이닝 및 디스플레이 바", "MF-CUS-014":"거실 가구", "MF-CUS-015":"침실 가구", "MF-CUS-016":"오피스 가구", "MF-CUS-017":"호텔 가구", "MF-CUS-018":"아파트 가구", "MF-CUS-019":"상업용 가구", "MF-CUS-020":"원목 도어", "MF-CUS-021":"맞춤 도어 패널", "MF-CUS-022":"PVC 멤브레인 도어 및 패널", "MF-CUS-023":"슬라이딩 도어 및 패널 시스템", "MF-CUS-024":"단열 알루미늄 창호", "MF-CUS-025":"알루미늄 도어 및 창호 시스템", "MF-CUS-026":"프리미엄 스프링 매트리스", "MF-CUS-027":"주택 전체 맞춤 가구"
 };
 
+zhNames["MF-CUS-001"] = "豪华别墅项目 1";
+zhNames["MF-CUS-002"] = "豪华别墅项目 2";
+koNames["MF-CUS-001"] = "럭셔리 빌라 프로젝트 1";
+koNames["MF-CUS-002"] = "럭셔리 빌라 프로젝트 2";
+
 const categoryMap: Record<Locale, Record<string, string>> = {
   en: {},
   zh: { "Living Room":"客厅", Storage:"收纳", Bedroom:"卧室", Dining:"餐厅", "Home Office":"家庭办公", "Kitchen & Utility":"厨房与家政", Kitchens:"厨房", Living:"客厅", Hospitality:"酒店与餐饮", Furniture:"成品家具", Commercial:"商业空间", "Doors & Panels":"门与饰面板", Windows:"窗系统", Mattresses:"床垫", "Whole Home":"全屋定制" },
   ko: { "Living Room":"거실", Storage:"수납", Bedroom:"침실", Dining:"다이닝", "Home Office":"홈 오피스", "Kitchen & Utility":"주방 및 다용도", Kitchens:"주방", Living:"거실", Hospitality:"호스피탈리티", Furniture:"가구", Commercial:"상업 공간", "Doors & Panels":"도어 및 패널", Windows:"창호", Mattresses:"매트리스", "Whole Home":"주택 전체" }
 };
+
+categoryMap.zh.Residential = "住宅";
+categoryMap.ko.Residential = "주거";
 
 export type LocalizedProduct = Product & { localizedName: string; localizedCategory: string; localizedShortDescription: string; localizedDescription: string; localizedFeatures: string[]; localizedMaterials: string[]; localizedCustomers: string[]; localizedCustomization: string[]; localizedApplications: string[]; localizedPackaging: string; localizedDimensions: string };
 
