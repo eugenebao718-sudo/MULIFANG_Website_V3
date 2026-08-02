@@ -40,6 +40,40 @@ test("English product content stays English and preserves the approved custom se
   assert.match(main, /Luxury Villa Project - 2/);
 });
 
+test("localized page content never leaks another interface language", async () => {
+  const routes = ["", "/products", "/launch-collection-2026", "/custom-projects", "/factory", "/about", "/contact", "/privacy", "/terms", "/products/nest-1800-tv-console", "/products/custom-kitchen-cabinets"];
+  const forbiddenUi = {
+    en: /[\u3400-\u9fff\uac00-\ud7af]/,
+    zh: /[\uac00-\ud7af]|\b(?:View Details|Request a Quote|Custom Solutions|Product Gallery|Related Products|Business Hours)\b/i,
+    ko: /[\u3400-\u9fff]|\b(?:View Details|Request a Quote|Custom Solutions|Product Gallery|Related Products|Business Hours)\b/i,
+  };
+  for (const locale of ["en", "zh", "ko"]) for (const route of routes) {
+    const path = `/${locale}${route}`;
+    const response = await render(path);
+    const html = await response.text();
+    const main = html.match(/<main[^>]*>([\s\S]*?)<\/main>/)?.[1] ?? "";
+    const visible = main.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ");
+    assert.doesNotMatch(visible, forbiddenUi[locale], path);
+  }
+});
+
+test("localized pages preserve the approved production section order", async () => {
+  const cases = [
+    ["/en/launch-collection-2026", ["launch-page-hero", "collection-stats", "Hero Launch Products", "dark-section section", "Complete Range", "quote-banner"]],
+    ["/en/custom-projects", ["page-hero", "Project Categories", "project-approach", "interior-section", "villa-section", "quote-banner"]],
+    ["/en/factory", ["page-hero", "factory-gallery", "Production Scope", "capability-list", "stats-band", "quote-banner"]],
+    ["/en/about", ["page-hero", "Company Profile", "Brand Position", "Direction", "Core Values", "service-area", "quote-banner"]],
+    ["/en/products/nest-1800-tv-console", ["product-hero", "product-specs", "launch-details", "product-gallery-section", "exploded-layout", "pricing-note", "Related Products", "quote-banner"]],
+  ];
+  for (const [path, markers] of cases) {
+    const response = await render(path);
+    const html = await response.text();
+    const positions = markers.map(marker => html.indexOf(marker));
+    assert.ok(positions.every(position => position >= 0), `${path}: all approved sections exist`);
+    assert.deepEqual([...positions].sort((a, b) => a - b), positions, `${path}: approved section order`);
+  }
+});
+
 test("legacy routes safely redirect to English", async () => {
   for (const path of ["/", "/products", "/factory", "/products/nest-1800-tv-console"]) {
     const response = await render(path);

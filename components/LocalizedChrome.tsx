@@ -23,9 +23,11 @@ export function LocalizedHeader({ locale }: { locale: Locale }) {
 export function LocalizedFooter({ locale }: { locale: Locale }) {
   const m = messages[locale];
   const hours = locale === "zh" ? "星期一至星期六\n上午 9:00–下午 5:00" : locale === "ko" ? "월요일–토요일\n오전 9:00–오후 5:00" : company.hours;
+  const address = locale === "zh" ? "菲律宾丹辘省班班市卢尔德区\n古迈因村 408 号，邮编 2317" : locale === "ko" ? "필리핀 딸락주 밤반 루르데스\n시티오 구마인 408, 우편번호 2317" : company.address;
+  const areas = locale === "zh" ? "马尼拉大都会、邦板牙、丹辘" : locale === "ko" ? "메트로 마닐라, 팜팡가, 딸락" : company.areas.join(", ");
   return <footer className="footer"><div className="container footer-grid"><div className="footer-brand"><img src="/images/brand/mulifang-official-logo-web.png" alt="MULIFANG" width="110" height="106" loading="lazy"/><p className="eyebrow">{m.position}</p><h2>{m.slogan}</h2></div>
-    <div><h3>{m.footer.contact}</h3><a href={`tel:+63${company.phone.replace(/\D/g, "").slice(1)}`}>{company.phone}</a><a href={`mailto:${company.email}`}>{company.email}</a><p>{company.address}</p></div>
-    <div><h3>{m.footer.visit}</h3><p>{hours}</p><p>{m.footer.serving} {company.areas.join(", ")}</p><a href={`https://www.google.com/maps?q=${company.coordinates}`} target="_blank" rel="noreferrer">{m.footer.maps}</a></div>
+    <div><h3>{m.footer.contact}</h3><a href={`tel:+63${company.phone.replace(/\D/g, "").slice(1)}`}>{company.phone}</a><a href={`mailto:${company.email}`}>{company.email}</a><p>{address}</p></div>
+    <div><h3>{m.footer.visit}</h3><p>{hours}</p><p>{m.footer.serving} {areas}</p><a href={`https://www.google.com/maps?q=${company.coordinates}`} target="_blank" rel="noreferrer">{m.footer.maps}</a></div>
     <div><h3>{m.footer.explore}</h3>{m.nav.map((label,i)=><Link key={paths[i]} href={route(locale,paths[i])}>{label}</Link>)}<Link href={route(locale,"/privacy")}>{m.footer.privacy}</Link><Link href={route(locale,"/terms")}>{m.footer.terms}</Link></div>
   </div><div className="container footer-bottom"><span>© {new Date().getFullYear()} MULIFANG INC.</span><span>{m.slogan}</span></div><a className="whatsapp-float" href={`https://wa.me/${company.whatsapp}`} target="_blank" rel="noreferrer" aria-label={m.footer.whatsapp}>WhatsApp</a></footer>;
 }
