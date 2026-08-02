@@ -9,14 +9,26 @@ async function render(path = "/") {
   return worker.fetch(new Request(`http://localhost${path}`, { headers: { accept: "text/html" } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
 }
 
-test("server-renders the production home page", async () => {
-  const response = await render(); const html = await response.text();
-  assert.equal(response.status, 200); assert.match(html, /Premium Custom/); assert.match(html, /MULIFANG/); assert.doesNotMatch(html, /codex-preview|Your site is taking shape/);
+test("server-renders all localized home pages", async () => {
+  for (const [path, phrase] of [["/en", /Premium Custom/], ["/zh", /高端定制家具制造商/], ["/ko", /프리미엄 맞춤 가구 제조업체/]]) {
+    const response = await render(path); const html = await response.text();
+    assert.equal(response.status, 200, path); assert.match(html, phrase); assert.match(html, /MULIFANG/); assert.doesNotMatch(html, /codex-preview|Your site is taking shape/);
+  }
 });
 
-test("server-renders key routes", async () => {
-  for (const path of ["/products", "/launch-collection-2026", "/custom-projects", "/factory", "/about", "/contact", "/privacy", "/terms", "/products/nest-1800-tv-console", "/products/custom-kitchen-cabinets"]) {
+test("server-renders every key route in all three languages", async () => {
+  const routes = ["/products", "/launch-collection-2026", "/custom-projects", "/factory", "/about", "/contact", "/privacy", "/terms", "/products/nest-1800-tv-console", "/products/custom-kitchen-cabinets"];
+  for (const locale of ["en", "zh", "ko"]) for (const route of routes) {
+    const path = `/${locale}${route}`;
     const response = await render(path); assert.equal(response.status, 200, path);
+  }
+});
+
+test("legacy routes safely redirect to English", async () => {
+  for (const path of ["/", "/products", "/factory", "/products/nest-1800-tv-console"]) {
+    const response = await render(path);
+    assert.ok([301, 302, 307, 308].includes(response.status), `${path}: ${response.status}`);
+    assert.match(response.headers.get("location") || "", /\/en(?:\/|$)/);
   }
 });
 
