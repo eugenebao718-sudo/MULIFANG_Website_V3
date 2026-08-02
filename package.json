@@ -1,17 +1,18 @@
 {
-  "name": "mulifang-website-v3-production",
-  "version": "3.0.0",
+  "name": "mulifang-website-v4-international",
+  "version": "4.0.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
   },
   "scripts": {
-    "dev": "NODE_OPTIONS=--disable-warning=DEP0205 WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev",
+    "dev": "npm run build:cloudflare && npm run start",
+    "dev:hot": "NODE_OPTIONS=--disable-warning=DEP0205 WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev",
     "build": "NODE_OPTIONS=--disable-warning=DEP0205 NITRO_PRESET=vercel vite build",
     "build:cloudflare": "NODE_OPTIONS=--disable-warning=DEP0205 WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
     "start": "NODE_OPTIONS=--disable-warning=DEP0205 WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
-    "test": "npm run build && node --test tests/rendered-html.test.mjs",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "test": "npm run build:cloudflare && node --test tests/rendered-html.test.mjs",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .vercel --ignore-pattern .wrangler",
     "check:images": "node scripts/check-duplicate-product-images.mjs"
   },
   "dependencies": {

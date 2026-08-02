@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mulifang.ph").replace(/\/$/, "");
 export const socialImage = "/og.png";
 
 export const absoluteUrl = (path: string) => new URL(path, `${siteUrl}/`).toString();
