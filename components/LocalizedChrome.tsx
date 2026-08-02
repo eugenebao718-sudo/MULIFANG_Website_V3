@@ -4,17 +4,19 @@ import { company } from "@/data/company";
 import { messages } from "@/i18n/messages";
 import { route, type Locale } from "@/i18n/config";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { MobileNavigation } from "./MobileNavigation";
 
 const paths = ["", "/products", "/launch-collection-2026", "/custom-projects", "/factory", "/about", "/contact"];
 
 export function LocalizedHeader({ locale }: { locale: Locale }) {
   const m = messages[locale];
+  const items = m.nav.map((label, i) => ({ label, href: route(locale, paths[i]) }));
   return <header className="site-header"><div className="header-inner container">
     <Link className="brand" href={route(locale)} aria-label={`MULIFANG ${m.nav[0]}`}><img src="/images/brand/mulifang-official-logo-web.png" alt="MULIFANG" width="58" height="56" /><span><strong>MULIFANG</strong><small>INC.</small></span></Link>
     <nav className="desktop-nav" aria-label={m.menu}>{m.nav.map((label, i) => <Link key={paths[i]} href={route(locale, paths[i])}>{label}</Link>)}</nav>
     <LanguageSwitcher locale={locale} label={m.language} />
     <Link className="button button-small header-cta" href={`${route(locale, "/contact")}#quotation`}>{m.quote}</Link>
-    <details className="mobile-nav"><summary aria-label={m.menu}><span/><span/><span/></summary><div className="mobile-nav-panel">{m.nav.map((label, i) => <Link key={paths[i]} href={route(locale, paths[i])}>{label}</Link>)}<LanguageSwitcher locale={locale} mobile label={m.language}/><Link className="button" href={`${route(locale, "/contact")}#quotation`}>{m.quote}</Link></div></details>
+    <MobileNavigation locale={locale} items={items} menuLabel={m.menu} languageLabel={m.language} quoteLabel={m.quote} quoteHref={`${route(locale, "/contact")}#quotation`}/>
   </div></header>;
 }
 
