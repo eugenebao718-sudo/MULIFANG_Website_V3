@@ -120,3 +120,25 @@ test("about brand position uses the approved living-and-kitchen panorama", async
     assert.match(html, /\/images\/projects\/brand-position-living-kitchen\.webp/);
   }
 });
+
+test("final polish renders product subcategories and localized brand services", async () => {
+  const productsResponse = await render("/en/products");
+  const productsHtml = await productsResponse.text();
+  assert.equal((productsHtml.match(/product-card-subcategory/g) || []).length, 47);
+  assert.match(productsHtml, />Living Room</);
+  assert.match(productsHtml, />Hospitality</);
+  assert.match(productsHtml, />Commercial</);
+  const homeResponse = await render("/en");
+  assert.match(await homeResponse.text(), /Discover MULIFANG/);
+
+  const expected = {
+    en: ["Residential", "Commercial", "Hospitality", "Design &amp; Build"],
+    zh: ["住宅", "商业", "酒店与餐饮", "设计与施工"],
+    ko: ["주거", "상업", "호스피탈리티", "디자인 및 시공"],
+  };
+  for (const locale of ["en", "zh", "ko"]) {
+    const response = await render(`/${locale}/about`);
+    const html = await response.text();
+    for (const label of expected[locale]) assert.match(html, new RegExp(label));
+  }
+});
