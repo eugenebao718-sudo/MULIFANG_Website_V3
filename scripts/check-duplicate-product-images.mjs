@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, extname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import sharp from "sharp";
 
 const projectRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const publicRoot = join(projectRoot, "public");
@@ -53,6 +54,11 @@ for (const folder of ["app", "components", "data"]) {
     for (const match of readFileSync(file, "utf8").matchAll(/\/images\/[A-Za-z0-9_./&+()-]+\.(?:avif|gif|heic|jpeg|jpg|png|svg|webp)/gi)) referencedImages.add(match[0]);
   }
 }
+for (const path of [
+  "/images/factory/cnc-cutting.webp", "/images/factory/edge-banding.webp", "/images/factory/machining.webp", "/images/factory/dust-collection.webp",
+  "/images/projects/kitchen-project.webp", "/images/projects/hallway-project.webp", "/images/projects/wardrobe-project.webp",
+  "/images/projects/villa-concept-01.webp", "/images/projects/villa-concept-02.webp", "/images/projects/villa-concept-03.webp",
+]) referencedImages.add(path);
 const unusedImages = allImageFiles.filter((file) => !referencedImages.has(`/${relative(publicRoot, file)}`));
 const allAssetHashes = allImageFiles.map((file) => ({ file, hash: hashFile(file) }));
 const duplicateAssetContent = groupBy(allAssetHashes, "hash");
@@ -74,6 +80,25 @@ for (const product of products) {
 const placeholderProducts = mainFiles.filter((item) => item.hash === placeholderHash);
 const realMainFiles = mainFiles.filter((item) => item.hash !== placeholderHash);
 const duplicateContent = groupBy(realMainFiles, "hash");
+const differenceHash = async (file) => {
+  const { data } = await sharp(file).resize(9, 8, { fit: "fill" }).greyscale().raw().toBuffer({ resolveWithObject: true });
+  let hash = 0n;
+  for (let y = 0; y < 8; y += 1) for (let x = 0; x < 8; x += 1) {
+    hash = (hash << 1n) | (data[y * 9 + x] > data[y * 9 + x + 1] ? 1n : 0n);
+  }
+  return hash;
+};
+const hammingDistance = (left, right) => {
+  let value = left ^ right, count = 0;
+  while (value) { count += Number(value & 1n); value >>= 1n; }
+  return count;
+};
+const visualMainFiles = await Promise.all(realMainFiles.map(async item => ({ ...item, visualHash: await differenceHash(fileFor(item.mainImage)) })));
+const nearDuplicateMainImages = [];
+for (let i = 0; i < visualMainFiles.length; i += 1) for (let j = i + 1; j < visualMainFiles.length; j += 1) {
+  const distance = hammingDistance(visualMainFiles[i].visualHash, visualMainFiles[j].visualHash);
+  if (distance <= 4) nearDuplicateMainImages.push({ left: visualMainFiles[i], right: visualMainFiles[j], distance });
+}
 const expectedCount = 47;
 const countError = products.length !== expectedCount;
 
@@ -82,6 +107,7 @@ console.log("================================");
 console.log(`Products scanned: ${products.length} (${products.filter((p) => p.code.startsWith("MF-CUS-")).length} custom + ${products.filter((p) => !p.code.startsWith("MF-CUS-")).length} launch)`);
 console.log(`Duplicate main-image paths: ${duplicatePaths.length}`);
 console.log(`Duplicate real main-image files: ${duplicateContent.length}`);
+console.log(`Perceptually near-duplicate main-image pairs: ${nearDuplicateMainImages.length}`);
 console.log(`Missing image data fields: ${missingFields.length}`);
 console.log(`Referenced files not found: ${missingFiles.length}`);
 console.log(`Image Coming Soon placeholders: ${placeholderProducts.length}`);
@@ -96,6 +122,11 @@ if (duplicatePaths.length) {
 if (duplicateContent.length) {
   console.log("\nByte-identical real main images:");
   for (const [, group] of duplicateContent) console.log(`- ${group.map((item) => `${item.code} (${item.name})`).join(" | ")}`);
+}
+
+if (nearDuplicateMainImages.length) {
+  console.log("\nPerceptually near-duplicate main images:");
+  for (const pair of nearDuplicateMainImages) console.log(`- ${pair.left.code} | ${pair.right.code} (distance ${pair.distance})`);
 }
 
 if (missingFields.length) {
@@ -123,7 +154,7 @@ if (unusedImages.length) {
   for (const file of unusedImages) console.log(`- /${relative(publicRoot, file)}`);
 }
 
-const failed = countError || duplicatePaths.length > 0 || duplicateContent.length > 0 || missingFields.length > 0 || missingFiles.length > 0;
+const failed = countError || duplicatePaths.length > 0 || duplicateContent.length > 0 || nearDuplicateMainImages.length > 0 || missingFields.length > 0 || missingFiles.length > 0;
 if (countError) console.error(`\nExpected ${expectedCount} products but parsed ${products.length}. Update this audit parser when the data structure changes.`);
 
 if (failed) {
