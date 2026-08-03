@@ -100,3 +100,23 @@ test("launch prices use one numeric source of truth", async () => {
     assert.doesNotMatch(line, /suggestedRetailPrice:\s*"|suggestedRetailPrice:\s*₱/);
   }
 });
+
+test("complete launch range renders all 20 unique product main images", async () => {
+  for (const locale of ["en", "zh", "ko"]) {
+    const response = await render(`/${locale}/launch-collection-2026`);
+    const html = await response.text();
+    const grid = html.match(/<div class="container compact-product-grid">([\s\S]*?)<div class="container collection-note">/)?.[1] ?? "";
+    const images = [...grid.matchAll(/%2Fimages%2Fproducts%2Flaunch-collection-2026%2F[^&\"]+%2Fmain\.webp/g)].map((match) => match[0]);
+    assert.equal(images.length, 20, `${locale}: every compact launch row has an image`);
+    assert.equal(new Set(images).size, 20, `${locale}: compact launch images are unique`);
+  }
+});
+
+test("about brand position uses the approved living-and-kitchen panorama", async () => {
+  for (const locale of ["en", "zh", "ko"]) {
+    const response = await render(`/${locale}/about`);
+    const html = await response.text();
+    assert.match(html, /brand-position-section/);
+    assert.match(html, /\/images\/projects\/brand-position-living-kitchen\.webp/);
+  }
+});
