@@ -142,3 +142,16 @@ test("final polish renders product subcategories and localized brand services", 
     for (const label of expected[locale]) assert.match(html, new RegExp(label));
   }
 });
+
+test("quotation forms use the localized validation and summary workflow", async () => {
+  for (const locale of ["en", "zh", "ko"]) {
+    const response = await render(`/${locale}/contact?product=NEST%201800%20TV%20CONSOLE&code=MF-LR-TV1800&price=%E2%82%B18%2C990&quantity=2`);
+    const html = await response.text();
+    assert.match(html, /<form class="quote-form" noValidate="">/);
+    assert.match(html, /<button class="button button-dark" type="button">/);
+    assert.match(html, /value="MF-LR-TV1800"/);
+    assert.match(html, /value="2"/);
+    assert.match(html, /href="https:\/\/wa\.me\/639273474888/);
+    assert.match(html, /href="mailto:mulifangph@gmail\.com/);
+  }
+});

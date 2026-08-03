@@ -48,6 +48,7 @@ export default defineConfig(async () => {
   if (isVercelBuild) {
     return {
       plugins: [tailwindcss(), vinext(), nitro()],
+      nitro: { serverDir: "server" },
     };
   }
 
